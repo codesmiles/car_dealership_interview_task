@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import mongoose from "mongoose";
 
-import { mongoConfig, app } from './src';
+import { mongoConfig, app } from "./src";
 
 
 

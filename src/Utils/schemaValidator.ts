@@ -11,8 +11,8 @@ export const validator = <T>( schema: Schema, data: T ) => {
       return errorResponse.toJson();
     }
 
-    const { error } = schema.validate(data);
-    if (error) {
+    const { error } = schema.validate(data, { abortEarly: false });
+   if (error) {
       errorData = error.details.map((err) => err.message);
       errorResponse = new ResponseBuilder(ResponseMessageEnum.VALIDATION_ERROR_MESSAGE, 400, errorData);
       return errorResponse.toJson();

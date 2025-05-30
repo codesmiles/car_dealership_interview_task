@@ -18,7 +18,7 @@ export const registerUser = async (req: Request, res: Response) => {
         }
     
         // check if user already exists
-        const existingUser = await authService.findSingle({ email: req.body.email });
+        const existingUser = await authService.findSingle({ payload: {email: req.body.email} });
         if (existingUser) {
         errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 400, ResponseMessageEnum.USER_ALREADY_EXISTS);
         return res.status(400).json(errorResponse.toJson());
@@ -41,15 +41,16 @@ export const loginUser = async (req: Request, res: Response) => {
     try {
     // validate requests
     const validate_req_payload = validator(loginSchema, await req.body);
-        if (validate_req_payload) {
-        console.error(validate_req_payload);
+    if (validate_req_payload) {
       return res.status(400).json(validate_req_payload);
     }
 
     // check if user exists
-    let user = await authService.findSingle({ email: await req.body.email });
+    let user = await authService.findSingle({payload:{ email: req.body.email }});
+    
+    console.log(user)
     if (!user || user === null) {
-      errorResponse = new  ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 400, ResponseMessageEnum.INVALID_LOGIN_CREDENTIALS);
+        errorResponse = new  ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 400, ResponseMessageEnum.INVALID_LOGIN_CREDENTIALS);
       return res.status(400).json(errorResponse.toJson());
     };
     user = user.toObject({ getters: true }) as IUser;
@@ -58,7 +59,6 @@ export const loginUser = async (req: Request, res: Response) => {
     // sign jwt token
     const token = signJwt({
       id: user?._id,
-      role: user?.role,
       email: user?.email,
     });
 
@@ -69,7 +69,7 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json(errorResponse.toJson());
     };
 
-    successResponse = new ResponseBuilder(ResponseBuilder.SUCCESS_MESSAGE, 200, { role: user?.role, token });
+    successResponse = new ResponseBuilder(ResponseBuilder.SUCCESS_MESSAGE, 200, { token });
     return res.status(200).json(successResponse.toJson());
     } catch (err) {
     console.error(err);
@@ -77,3 +77,8 @@ export const loginUser = async (req: Request, res: Response) => {
     return res.status(500).json(errorResponse.toJson());
   }
 };
+
+// purchase a car: record the car model, record the user model, record the sales model
+
+
+// view customer purchase history

@@ -1,6 +1,6 @@
 import { Model, UpdateQuery, FilterQuery, Schema } from "mongoose";
-import { PaginatedResponse } from "../Models";
-import { CrudOperationsEnum } from "../Utils";
+
+import { CrudOperationsEnum,PaginatedResponse } from "../Utils";
 
 abstract class BaseAbstract<T, I> {
   abstract create(payload: T): Promise<I>;
@@ -15,7 +15,7 @@ abstract class BaseAbstract<T, I> {
   abstract delete(id: string): Promise<void>;
   abstract search(query: string): Promise<I[] | null>;
   abstract exists(query: object): Promise<boolean>;
-  abstract findSingle(payload: object, options?: { projection?: object }): Promise<I | null>;
+    abstract findSingle(data:{ payload: Partial<I>; populate?:string}): Promise<I | null>;
   abstract softDelete(id: string): Promise<void>;
 ;
   abstract findOrCreate(payload: Partial<I>, key: keyof I): Promise<I>
@@ -83,12 +83,14 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
    * @param options {projection?: object}
    * @returns I | null
    */
-  async findSingle(payload: object, options?: { projection?: object }): Promise<I | null> {
+    async findSingle(data: { payload:  Partial<I>; populate?:string}): Promise<I | null> {
     if (!this.allowedOperations.includes(CrudOperationsEnum.FIND_SINGLE)) {
       notAllowedMsg(CrudOperationsEnum.FIND_SINGLE);
     }
+    
+    const { payload, populate } = data;
     console.log("Filtered Fields", this.serializer);
-    const findSingle = await this.Model.findOne({ isDeleted: false, ...payload }, options?.projection).select(this.serializer.map(field => `-${field}`)).exec();
+    const findSingle = await this.Model.findOne(payload).populate(populate as string).select(this.serializer.map(field => `-${field}`)).exec();
     return findSingle as I | null;
   }
 

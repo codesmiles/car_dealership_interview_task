@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 export interface ISale extends Document {
-    customer: Schema.Types.ObjectId; // Reference to Customer
+    buyer: Schema.Types.ObjectId; // Reference to Customer
     car: Schema.Types.ObjectId; // Reference to Car
     saleDate: Date;
     salePrice: number;
@@ -8,7 +8,7 @@ export interface ISale extends Document {
 }
 
 const salesSchema: Schema = new Schema({
-    customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
+    buyer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
     car: { type: Schema.Types.ObjectId, ref: 'Car', required: true },
     saleDate: { type: Date, default: Date.now },
     salePrice: { type: Number, required: true },

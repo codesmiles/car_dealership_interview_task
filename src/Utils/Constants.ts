@@ -5,7 +5,7 @@ export enum ROUTES {
     apiV1 = "/api/v1",
     car = "/car",
     sale = "/sale",
-    health = "/health",
+    health = "/",
     user = "/user",
     createUser = "/create-user",
     loginUser = "/login",
@@ -37,4 +37,5 @@ export enum ResponseMessageEnum {
     USER_ALREADY_EXISTS = "Admin already exists",
     UNAUTHORIZED = "Unauthorized",
     VALIDATION_ERROR_MESSAGE = "Validation Error",
+    CAR_NOT_FOUND = "Car not found",
 }

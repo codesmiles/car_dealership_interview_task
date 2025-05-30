@@ -4,9 +4,14 @@ import mongoose from "mongoose";
 
 import { mongoConfig, app } from "./src";
 
+//  trying something on multithreading
+ import cluster from "node:cluster";
+ import { availableParallelism as numCPUs } from "node:os";
+ import process from "node:process";
 
 
-const PORT = process.env.PORT || 8001
+
+const PORT = process.env.PORT || 8005
 
 const start = () => {
     mongoose.set("strictQuery", true);
@@ -24,4 +29,27 @@ const start = () => {
     })
 }
 
-start();
+if (process.env.NODE_ENV === "development") { 
+    start();
+}
+else {
+    //  check if the current process is the master process
+     if (cluster.isPrimary) {
+         console.log(`Primary ${process.pid} is running`);
+        
+        //   Fork workers
+         for (let i = 0; i < numCPUs(); i++) {
+             cluster.fork();
+         }
+        
+         cluster.on('exit', (worker) => { 
+               console.log(`Worker ${worker.process.pid} died. Restarting...`);
+             cluster.fork();
+         })
+     }
+     else{
+         start();
+         console.log(`Worker ${process.pid} started`);
+     }
+}
+

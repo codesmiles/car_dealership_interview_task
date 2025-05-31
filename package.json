@@ -7,6 +7,7 @@
     "build": "tsc",
     "test": "jest",
     "prepare": "husky",
+    "start:dev": "node dist/server.js",
     "start": "ts-node ./server.ts",
     "dev": "nodemon ./server.ts",
     "lint": "eslint *.{js,ts}",

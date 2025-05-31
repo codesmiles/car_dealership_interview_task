@@ -9,6 +9,7 @@ export enum ROUTES {
     user = "/user",
     createUser = "/create-user",
     loginUser = "/login",
+    purchase = "/purchase",
 
 }
 

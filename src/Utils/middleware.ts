@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 import { ResponseBuilder } from "./ResponseHelper";
-import { checkJwt, ResponseMessageEnum ,CustomRequest} from "../Utils";
+import { checkJwt, ResponseMessageEnum ,CustomRequest, UserRoles} from "../Utils";
 import { UserTokenDecrypted } from "../Types";
 
 
@@ -29,4 +29,18 @@ export const verifyUser = async (
     errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 400, err);
     return res.status(400).json(errorResponse.toJson());
   }
+};
+
+export const authorizeRoles = (...allowedRoles: UserRoles[]) => {
+  let errorResponse: ResponseBuilder<unknown>;
+  return async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const userRole = req.user?.role;
+
+    if (!userRole || !allowedRoles.includes(userRole as UserRoles)) {
+      errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 403, ResponseMessageEnum.UNAUTHORIZED);
+      return res.status(403).json(errorResponse.toJson());
+    }
+
+    next();
+  };
 };

@@ -3,7 +3,7 @@ import { loginSchema, createUserSchema } from "../Dto"
 import { LoginResponse } from "../Types";
 import { AuthService } from "../Services";
 import { Response, Request } from "express";
-import { validator, signJwt, comparePassword, ResponseMessageEnum, ResponseBuilder } from "../Utils";
+import { validator, signJwt, comparePassword, ResponseMessageEnum, ResponseBuilder, generateHash } from "../Utils";
 
 const authService = new AuthService();
 
@@ -12,7 +12,7 @@ export const registerUser = async (req: Request, res: Response) => {
     let errorResponse: ResponseBuilder<unknown>;
     try {
         // validate requests
-        const validate_req_payload = validator(createUserSchema, req.body);
+      const validate_req_payload = validator(createUserSchema, req.body);
         if (validate_req_payload) {
         return res.status(400).json(validate_req_payload);
         }
@@ -23,7 +23,9 @@ export const registerUser = async (req: Request, res: Response) => {
         errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 400, ResponseMessageEnum.USER_ALREADY_EXISTS);
         return res.status(400).json(errorResponse.toJson());
         }
-    
+        
+      // hash password
+      req.body.password = await generateHash(req.body.password);
         // create user
         const user = await authService.create(req.body);
     
@@ -59,6 +61,7 @@ export const loginUser = async (req: Request, res: Response) => {
     // sign jwt token
     const token = signJwt({
       id: user?._id,
+      role: user?.role,
       email: user?.email,
     });
 
@@ -69,7 +72,7 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json(errorResponse.toJson());
     };
 
-    successResponse = new ResponseBuilder(ResponseBuilder.SUCCESS_MESSAGE, 200, { token });
+    successResponse = new ResponseBuilder(ResponseBuilder.SUCCESS_MESSAGE, 200, { token, role: user?.role });
     return res.status(200).json(successResponse.toJson());
     } catch (err) {
     console.error(err);

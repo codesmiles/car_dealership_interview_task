@@ -14,3 +14,25 @@ export const loginSchema = Joi.object({
     email: Joi.string().required(),
     password: Joi.string().required(),
 });
+
+export const updateUserSchema = Joi.object({
+    name: Joi.string(),
+    phone: Joi.string().min(10).max(15),
+    password: Joi.string().min(8),
+    role: Joi.string().valid(...Object.values(UserRoles)).default(UserRoles.CUSTOMER),
+});
+
+export const getAllUserSchema = Joi.object({
+    page: Joi.number(),
+    pageSize: Joi.number(),
+    search: Joi.string(),
+    name: Joi.string(),
+    phone: Joi.string().min(10).max(15),
+    email: Joi.string().email(),
+    role: Joi.string().valid(...Object.values(UserRoles)).default(UserRoles.CUSTOMER),
+});
+export const getAllUserPurchaseSchema = Joi.object({
+    page: Joi.number(),
+    pageSize: Joi.number(),
+    search: Joi.string(),
+});

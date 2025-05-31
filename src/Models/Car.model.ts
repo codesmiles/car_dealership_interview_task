@@ -1,14 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICar extends Document {
-    vin: string; 
-    brand: string;
+    vin: number; 
+    brand: string; // e.g. 'Toyota', 'Ford'
     price: number;
     color?: string; // e.g. 'Red', 'Blue'
     soldTo?: Schema.Types.ObjectId; // Reference to User (customer who bought it)
     isActive: boolean;
     category: string; // e.g. 'SUV', 'Sedan'
-    carModel: string; // Conflicts with Document.model
+    carModel: string; // e.g. 'Camry', 'F-150'
     features?: string[]; // e.g., ["sunroof", "Bluetooth", "backup camera"]
     mileage?: number; // Optional for used cars
     createdBy: Schema.Types.ObjectId; // Reference to User (employee who added it)
@@ -18,7 +18,7 @@ export interface ICar extends Document {
 }
 
 const carSchema = new Schema<ICar>({
-    vin: { type: String, required: true, unique: true },
+    vin: { type: Number, required: true, unique: true },
     brand: { type: String, required: true },
     price: { type: Number, required: true },
     color: { type: String },
@@ -26,11 +26,8 @@ const carSchema = new Schema<ICar>({
     mileage: { type: Number },
     carModel: { type: String, required: true },
     isActive: { type: Boolean, default: true }, // availablikity
-    category: {
-        type: String,
-        ref: 'Category',
-        required: true,
-        enum: ['SUV', 'Sedan', 'Hatchback', 'Truck', 'Coupe', 'Convertible']
+    category: {type: String,required: true,
+        // enum: ['SUV', 'Sedan', 'Hatchback', 'Truck', 'Coupe', 'Convertible']
     },
     features: [String],
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },

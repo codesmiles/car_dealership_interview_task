@@ -8,7 +8,7 @@ export interface ISale extends Document {
     seller: Schema.Types.ObjectId | string | IUser; // Reference to User (employer)
     count: number; // Number of cars sold in this sale
     saleDate: Date;
-    salePrice: number;
+    salePrice?: number;
     isDeleted: boolean; 
     DeletedAt?: Date;
 }
@@ -19,7 +19,7 @@ const salesSchema: Schema = new Schema({
     count: { type: Number, default: 1, min: 1 },
     seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     saleDate: { type: Date, default: Date.now },
-    salePrice: { type: Number, required: true },
+    salePrice: { type: Number },
     isDeleted: { type: Boolean, default: false },
     DeletedAt: { type: Date, default: null }
 

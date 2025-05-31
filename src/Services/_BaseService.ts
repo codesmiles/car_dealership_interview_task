@@ -4,12 +4,17 @@ import { CrudOperationsEnum, PaginatedResponse } from "../Utils";
 
 abstract class BaseAbstract<T, I> {
     abstract create(payload: T): Promise<I>;
-    abstract getAll(queries: {
-        page: number;
-        pageSize: number;
-        queries: object;
-        search?: string;
-    }): Promise<PaginatedResponse<I>>;
+    abstract getAll(
+        queries: {
+            page: number;
+            pageSize: number;
+            queries: object;
+            search?: string;
+        },
+        options?: {
+            session?: ClientSession,
+            populate?: string[]
+        }): Promise<PaginatedResponse<I>>;
     abstract count(query: object, session?: ClientSession): Promise<number>;
     abstract update(query: object, payload: UpdateQuery<I>, session?: ClientSession): Promise<I | null>;
     abstract delete(id: string, session?: ClientSession): Promise<void>;
@@ -88,15 +93,17 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
         if (!this.allowedOperations.includes(CrudOperationsEnum.FIND_SINGLE)) {
             notAllowedMsg(CrudOperationsEnum.FIND_SINGLE);
         }
-
+        console.log("Filtered Fields", this.serializer);
         const { payload, populate } = data;
-        let query = this.Model.findOne(payload, session)
+        let query = this.Model.findOne(payload)
             .select(this.serializer.map(field => `-${field}`));
 
+        if (session) {
+            query = query.session(session);
+        }
         if (populate?.length) {
             query = query.populate(populate.map(path => ({ path })));
         }
-
         const findSingle = await query.exec();
         return findSingle as I | null;
     }
@@ -129,7 +136,12 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
      * @param {ClientSession} session  - Transaction session(Optional).
      * @returns {Promise<PaginatedResponse<I>>} - The paginated response containing the documents.
      */
-    async getAll(queries: { page?: number; pageSize?: number; queries?: object; search?: string; }, session?: ClientSession): Promise<PaginatedResponse<I>> {
+    async getAll(
+        queries: { page?: number; pageSize?: number; queries?: object; search?: string; },
+        options?: {
+            session?: ClientSession,
+            populate?: string[]
+        }): Promise<PaginatedResponse<I>> {
         if (!this.allowedOperations.includes(CrudOperationsEnum.GET_ALL)) {
             notAllowedMsg(CrudOperationsEnum.GET_ALL);
         }
@@ -166,7 +178,7 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
             formattedQueries[key] = isArrayField ? { $in: Array.isArray(value) ? value : [value] } : value;
         }
 
-        const data = await this.Model.find({ isDeleted: false, ...formattedQueries }, session)
+        let data = await this.Model.find({ isDeleted: false, ...formattedQueries })
             .select(projection)
             .sort(
                 isTextSearch
@@ -175,10 +187,19 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
             )
             .skip(skip)
             .limit(pageSize)
-            .exec();
+        
+        const {session, populate } = options || {};
+        // Apply session if provided
+        if (session) {
+            data.forEach(doc => doc.$session(session));
+        }
+
+        if (populate?.length) {
+            data = await this.Model.populate(data, populate.map(path => ({ path })));
+        }
 
         return {
-            payload: data,
+            payload: data as PaginatedResponse<I>["payload"],
             meta: {
                 page,
                 total,

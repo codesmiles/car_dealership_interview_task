@@ -7,7 +7,7 @@ export const validator = <T>( schema: Schema, data: T ) => {
   let errorData:unknown;
   try {
     if (!data || typeof data !== "object") { 
-      errorResponse = new ResponseBuilder(ResponseMessageEnum.VALIDATION_ERROR_MESSAGE, 400, "No Payload was provided");
+      errorResponse = new ResponseBuilder(ResponseMessageEnum.VALIDATION_ERROR_MESSAGE, 400, ResponseMessageEnum.NO_PAYLOAD_PROVIDED);
       return errorResponse.toJson();
     }
 

@@ -24,7 +24,6 @@ export const registerUser = async (req: Request, res: Response) => {
         return res.status(400).json(errorResponse.toJson());
         }
         
-      // hash password
       req.body.password = await generateHash(req.body.password);
         // create user
         const user = await authService.create(req.body);

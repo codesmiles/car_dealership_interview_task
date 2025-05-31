@@ -1,4 +1,3 @@
-// TEST THE VALIDATION OF THE LOGIN USER ENDPOINT
 import dotenv from "dotenv";
 dotenv.config();
 import request from 'supertest';
@@ -40,7 +39,7 @@ describe(`POST ${endpoint}`, () => {
     });
   });
 
-  it('should return missing fields message', async () => {
+  it('should return missing fields validation error message', async () => {
     const response = await request(app).post(endpoint).send({});
 
     expect(response.status).toBe(400);
@@ -51,9 +50,26 @@ describe(`POST ${endpoint}`, () => {
     expect(response.body.data).toEqual(["\"email\" is required", "\"password\" is required"]);
   });
 
-  it('should return incorrect login credentials message', async () => {
+  it('should return incorrect login credentials message based no existing user', async () => {
     const response = await request(app).post(endpoint).send({
       email: 'test@example.com', password: 'password123'
+    });
+
+    expect(response.status).toBe(400);
+    expect(typeof response.body).toBe('object');
+    expect(response.body).toHaveProperty('message', ResponseBuilder.ERROR_MESSAGE);
+    expect(response.body).toHaveProperty('status', 400);
+    expect(response.body).toHaveProperty('data');
+    expect(typeof response.body.data).toBe('string');
+    expect(response.body).toHaveProperty('data', ResponseMessageEnum.INVALID_LOGIN_CREDENTIALS);
+
+  });
+  it('should return incorrect login credentials message based on in correct password', async () => {
+      const password = 'password123';
+    await User.create({ email: 'test@example.com', password: await generateHash(password), name: 'Test User',phone: '1234567890' });
+    
+    const response = await request(app).post(endpoint).send({
+      email: 'test@example.com', password: 'password@12'
     });
 
     expect(response.status).toBe(400);

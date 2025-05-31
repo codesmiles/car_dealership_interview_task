@@ -133,6 +133,7 @@ export const deleteCar = async (req: CustomRequest, res: Response) => {
   }
 }
 
+// purchase car
 export const purchase_car = async (req: CustomRequest, res: Response) => {
     let successResponse: ResponseBuilder<ISale>;
     let errorResponse: ResponseBuilder<unknown>;

@@ -37,7 +37,7 @@ export const authorizeRoles = (...allowedRoles: UserRoles[]) => {
     const userRole = req.user?.role;
 
     if (!userRole || !allowedRoles.includes(userRole as UserRoles)) {
-      errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 403, ResponseMessageEnum.UNAUTHORIZED);
+      errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 403, ResponseMessageEnum.FORBIDDEN);
       return res.status(403).json(errorResponse.toJson());
     }
 

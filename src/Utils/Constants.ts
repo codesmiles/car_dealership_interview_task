@@ -10,6 +10,7 @@ export enum ROUTES {
     createUser = "/create-user",
     loginUser = "/login",
     purchase = "/purchase",
+    view_user_purchases = "viewUserPurchases",
 
 }
 
@@ -43,6 +44,8 @@ export enum ResponseMessageEnum {
     USER_NOT_FOUND = "User not found",
     CAR_QUANTITY_NOT_UPDATED = "Car quantity not updated",
     SALE_NOT_CREATED = "Sale not created",
+    NO_PAYLOAD_PROVIDED = "No Payload was provided",
+    FORBIDDEN = "Forbidden route"
 }
 
 export enum NODE_ENV {

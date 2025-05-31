@@ -50,7 +50,6 @@ export const loginUser = async (req: Request, res: Response) => {
     // check if user exists
     let user = await authService.findSingle({payload:{ email: req.body.email }});
     
-    console.log(user)
     if (!user || user === null) {
         errorResponse = new  ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 400, ResponseMessageEnum.INVALID_LOGIN_CREDENTIALS);
       return res.status(400).json(errorResponse.toJson());

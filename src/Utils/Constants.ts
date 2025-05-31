@@ -44,3 +44,8 @@ export enum ResponseMessageEnum {
     CAR_QUANTITY_NOT_UPDATED = "Car quantity not updated",
     SALE_NOT_CREATED = "Sale not created",
 }
+
+export enum NODE_ENV {
+    DEVELOPMENT = "development",
+    PRODUCTION = "production",
+}

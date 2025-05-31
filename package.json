@@ -7,7 +7,7 @@
     "build": "tsc",
     "test": "jest",
     "prepare": "husky",
-    "start": "ts-node ./server.ts",
+    "start": "node dist/server.js",
     "dev": "nodemon ./server.ts",
     "lint": "eslint *.{js,ts}",
     "fix": "eslint *.{js,ts} --fix"
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://www.gihub.com/codesmiles/car-dealership-interview-task"
+    "url": "https://github.com/codesmiles/car_dealership_interview_task"
   },
   "author": "Nwogu Michael (codesmiles)",
   "license": "ISC",

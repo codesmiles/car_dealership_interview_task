@@ -4,13 +4,13 @@
     "module": "commonjs",
     "typeRoots": [
       "./node_modules/@types",
-     // "./custom.d.ts"
+      // "./custom.d.ts"
     ],
     "allowJs": true,
     "checkJs": false,
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
     "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
@@ -28,7 +28,9 @@
   "exclude": [
     "node_modules"
   ],
-  "include": [
-    "src/**/*"
-, "__tests__"  ]
+ "include": [
+  "src/**/*",
+  "__tests__/**/*",
+  "server.ts"
+]
 }

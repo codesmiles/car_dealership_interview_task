@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import mongoose from "mongoose";
 
-import { mongoConfig, app } from "./src";
+import { mongoConfig, app, NODE_ENV } from "./src";
 
 //  trying something on multithreading
  import cluster from "node:cluster";
@@ -29,10 +29,12 @@ const start = () => {
     })
 }
 
-if (process.env.NODE_ENV === "development") { 
+if (process.env.NODE_ENV === NODE_ENV.DEVELOPMENT) { 
     start();
 }
 else {
+    // Placeholder statement
+    console.log("Worker process started");
     //  check if the current process is the master process
      if (cluster.isPrimary) {
          console.log(`Primary ${process.pid} is running`);

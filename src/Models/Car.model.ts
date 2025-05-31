@@ -13,6 +13,8 @@ export interface ICar extends Document {
     mileage?: number; // Optional for used cars
     createdBy: Schema.Types.ObjectId; // Reference to User (employee who added it)
     quantityAvailable: number; // e.g. 3 units of the same model available
+    isDeleted: boolean; 
+    DeletedAt?: Date;
 }
 
 const carSchema = new Schema<ICar>({
@@ -33,6 +35,8 @@ const carSchema = new Schema<ICar>({
     features: [String],
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
     quantityAvailable: { type: Number, default: 1, min: 0 },
+    isDeleted: { type: Boolean, default: false },
+    DeletedAt: { type: Date, default: null } 
 }, {
     timestamps: true
 });

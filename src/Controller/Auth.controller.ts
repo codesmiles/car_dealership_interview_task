@@ -77,8 +77,3 @@ export const loginUser = async (req: Request, res: Response) => {
     return res.status(500).json(errorResponse.toJson());
   }
 };
-
-// purchase a car: record the car model, record the user model, record the sales model
-
-
-// view customer purchase history

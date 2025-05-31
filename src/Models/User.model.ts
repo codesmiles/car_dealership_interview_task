@@ -6,8 +6,8 @@ export interface IUser extends Document {
     phone: string;
     password: string;
     role: UserRoles;
-    soldCars: Schema.Types.ObjectId[]; 
-    purchasedCars: Schema.Types.ObjectId[];
+    isDeleted: boolean; 
+    DeletedAt?: Date;
 }
 
 const userSchema: Schema = new Schema({
@@ -21,8 +21,8 @@ const userSchema: Schema = new Schema({
     required: true,
     default: UserRoles.CUSTOMER,
   },
-  purchasedCars: [{ type: Schema.Types.ObjectId, ref: 'Car' }],
-  soldCars: [{ type: Schema.Types.ObjectId, ref: 'Car' }],
+  isDeleted: { type: Boolean, default: false },
+    DeletedAt: { type: Date, default: null }
 }, {
     timestamps: true
 });

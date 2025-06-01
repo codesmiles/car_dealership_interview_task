@@ -16,15 +16,17 @@ const endpoint = `${ROUTES.apiV1}${ROUTES.auth}${ROUTES.loginUser}`;
 describe(`POST ${endpoint}`, () => {
   // database connection
   beforeAll(async () => {
-  await mongoose.connect(`${ process.env.MONGODB_URL as string}/car_dealership_test`);
+        const dbName = `car_dealership_test_${Date.now()}`;
+        await mongoose.connect(`${process.env.MONGODB_URL as string}/${dbName}`);
     console.log('Connected to MongoDB for testing');
   },10000);
 
   beforeEach(async () => {
     await User.deleteMany({});
   },10000);
-
+  
   afterAll(async () => {
+    await User.deleteMany({});
     await mongoose.disconnect();
   },10000);
 

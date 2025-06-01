@@ -17,15 +17,17 @@ const endpoint = `${ROUTES.apiV1}${ROUTES.auth}${ROUTES.createUser}`;
 describe(`POST ${endpoint}`, () => {
     // database connection
     beforeAll(async () => {
-        await mongoose.connect(`${process.env.MONGODB_URL as string}/car_dealership_test`);
+        const dbName = `car_dealership_test_${Date.now()}`;
+        await mongoose.connect(`${process.env.MONGODB_URL as string}/${dbName}`);
         console.log('Connected to MongoDB for testing');
     }, 10000);
 
     beforeEach(async () => {
         await User.deleteMany({});
     }, 10000);
-
+    
     afterAll(async () => {
+        await User.deleteMany({});
         await mongoose.disconnect();
     }, 10000);
 
@@ -50,7 +52,7 @@ describe(`POST ${endpoint}`, () => {
         expect(response.body).toHaveProperty('data');
         expect(response.body.data).toEqual(['"name" is required', '"email" is required', '"phone" is required', '"password" is required']);
     });
-    
+
     it('should return existing user error message', async () => {
         const payload = {
             email: 'test@example.com',
@@ -79,7 +81,7 @@ describe(`POST ${endpoint}`, () => {
  
         }
         const response = await request(app).post(endpoint).send(payload);
-        console.log(response.body)
+
         expect(response.status).toBe(201);
         expect(response.body).toHaveProperty('data');
         expect(response.body).toHaveProperty('message', ResponseBuilder.SUCCESS_MESSAGE);

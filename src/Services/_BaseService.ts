@@ -223,8 +223,14 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
         console.log("Filtered Fields", this.serializer);
         const value = payload[key];
         const filter = { [key]: value, isDeleted: false } as FilterQuery<T>;
-        const doc = await this.Model.findOne(filter, session).select(this.serializer.map(field => `-${field}`)).exec()
-            ?? await this.Model.create(payload as I, { session });
+        let query = this.Model.findOne(filter)
+            .select(this.serializer.map(field => `-${field}`));
+        
+        if (session) {
+        query = query.session(session);
+        }
+
+        const doc = await query.exec() ?? await this.Model.create(payload as I, { session });
         return doc as I;
     }
     /**

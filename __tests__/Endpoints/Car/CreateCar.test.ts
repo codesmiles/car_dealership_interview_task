@@ -10,25 +10,37 @@ import {
     ResponseBuilder,
     ResponseMessageEnum,
     generateHash,
-    UserRoles
+    UserRoles,
+    Car
 } from "../../../src";
 
 const endpoint = `${ROUTES.apiV1}${ROUTES.car}/`;
 const login_endpoint = `${ROUTES.apiV1}${ROUTES.auth}${ROUTES.loginUser}`;
 
+const password = 'password123';
+const payload = { email: 'employee@example.com', password, name: 'Test User', phone: '1234567890', role: UserRoles.EMPLOYEE }
+const payload2 = { email: 'customer@example.com', password, name: 'Test User', phone: '1234567890', role: UserRoles.CUSTOMER }
 
 describe(`POST ${endpoint}`, () => {
     // database connection
     beforeAll(async () => {
-        await mongoose.connect(`${process.env.MONGODB_URL as string}/car_dealership_test`);
+        const dbName = `car_dealership_test_${Date.now()}`;
+        await mongoose.connect(`${process.env.MONGODB_URL as string}/${dbName}`);
         console.log('Connected to MongoDB for testing');
+        payload.password = await generateHash(password);
+        payload2.password = await generateHash(password);
+        await Promise.all([
+            await User.create(payload),
+            await User.create(payload2)
+        ]);
     }, 10000);
 
     beforeEach(async () => {
-        await User.deleteMany({});
+        await Car.deleteMany({});
     }, 10000);
-
+    
     afterAll(async () => {
+       await Promise.all([User.deleteMany({}), Car.deleteMany({})]);
         await mongoose.disconnect();
     }, 10000);
 
@@ -44,10 +56,6 @@ describe(`POST ${endpoint}`, () => {
     });
 
     it('should return no payload provided error message', async () => {
-        const password = 'password123';
-        const payload = { email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890', role: UserRoles.EMPLOYEE }
-        await User.create(payload);
-
         const login = await request(app).post(login_endpoint).send({
             email: payload.email, password
         })
@@ -63,31 +71,23 @@ describe(`POST ${endpoint}`, () => {
         });
     });
 
-    it('should return missing fields validation error message', async () => {
-        const password = 'password123';
-        const payload = { email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890', role: UserRoles.CUSTOMER }
-        await User.create(payload);
+    it('should return missing forbidden endpoint for customer message for customer', async () => {
 
         const login = await request(app).post(login_endpoint).send({
-            email: payload.email, password
+            email: payload2.email, password
         })
         const token = login.body.data.token;
 
         const response = await request(app).post(endpoint).set('Authorization', `Bearer ${token}`).send({});
 
-        console.log(response.body)
         expect(response.status).toBe(403);
         expect(typeof response.body.data).toBe('string');
         expect(response.body).toHaveProperty('message', ResponseBuilder.ERROR_MESSAGE);
         expect(response.body).toHaveProperty('status', 403);
         expect(response.body).toHaveProperty('data', ResponseMessageEnum.FORBIDDEN);
     });
-    
-    it('should return missing fields validation error message', async () => {
-        const password = 'password123';
-        const payload = { email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890', role: UserRoles.EMPLOYEE }
-        await User.create(payload);
 
+    it('should return missing fields validation error message', async () => {
         const login = await request(app).post(login_endpoint).send({
             email: payload.email, password
         })
@@ -110,26 +110,20 @@ describe(`POST ${endpoint}`, () => {
     });
 
     it('should return success message', async () => {
-        const password = 'password123';
-        const payload = { email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890', role: UserRoles.EMPLOYEE }
-        await User.create(payload);
-
         const login = await request(app).post(login_endpoint).send({
             email: payload.email, password
         })
         const token = login.body.data.token;
 
         const createCarPayload = {
-            vin: 1234543,
+            vin: 1232543224658,
             brand: "toyota",
-            price: "2343",
+            price: "122000",
             category: "SUV",
-            carModel: "vibes",
-            quantityAvailable: "23"
+            carModel: "camry",
+            quantityAvailable: "20"
         }
         const response = await request(app).post(endpoint).set('Authorization', `Bearer ${token}`).send(createCarPayload);
-
-        console.log(response.body)
         expect(response.status).toBe(201);
         expect(typeof response.body.data).toBe('object');
         expect(response.body).toHaveProperty('message', ResponseBuilder.SUCCESS_MESSAGE);

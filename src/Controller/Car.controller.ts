@@ -26,11 +26,15 @@ export const createCar = async (req: CustomRequest, res: Response) => {
 
         // set car createdBy
         req.body.createdBy = req.user.id;
-        // create car
-        const car = await carService.findOrCreate(req.body, "vin");
+        const car = await carService.findSingle({ payload: { vin: req.body.vin } })
+            ?? await carService.create(req.body);
+        
+        // // find or create car
+        // const car = await carService.findOrCreate(req.body, "vin");
         successResponse = new ResponseBuilder(ResponseBuilder.SUCCESS_MESSAGE, 201, car);
         return res.status(201).json(successResponse.toJson());
     } catch (err) {
+        console.log(err)
         errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 500, err);
         return res.status(500).json(errorResponse.toJson());
     }
@@ -154,7 +158,6 @@ export const purchase_car = async (req: CustomRequest, res: Response) => {
         // check if user exists
         const buyer = await userService.findSingle({ payload: { _id: req.body.buyer } }, session);
         if (!buyer || buyer === null) {
-            console.log(buyer)
             await session.abortTransaction();
             errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 400, ResponseMessageEnum.USER_NOT_FOUND);
             return res.status(400).json(errorResponse.toJson());

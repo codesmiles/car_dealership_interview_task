@@ -235,12 +235,13 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
         return doc as I;
     }
     /**
-     * Find Many Or Create Many
+     * Find Many Or Create Many (I WILL WORK N THIS LATEER)
      * @param {string[]} identifiers an array of value you want to check
      * @param {keyof I} key the key you want to find
      * @param {ClientSession} session  - Transaction session(Optional).
      * @returns array of data of existing and created documents
      */
+    
 // async findManyOrCreateMany(
 //   identifiers: Partial<I>[],
 //   key: keyof I,

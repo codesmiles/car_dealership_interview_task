@@ -4,10 +4,6 @@ import mongoose from "mongoose";
 
 import { mongoConfig, app } from "./src";
 
-
-
-
-
 const PORT = process.env.PORT || 8005
 
 const start = () => {

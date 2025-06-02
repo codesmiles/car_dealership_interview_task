@@ -1,46 +1,57 @@
-# Backend Engineering Assessment
+# Node.js Express TypeScript Project Setup
+This guide explains how to set up and work with a Node.js + Express project using TypeScript, ESLint, Jest, Husky, and other development tools.
 
-### **Objective:**
+## Prerequisites
+Make sure the following tools are installed on your system:
+- Node.js (v16 or higher recommended)
+- npm or yarn
+- Git (for Husky hooks to work)
 
-Build a simple RESTful API for a **car dealership** to manage cars, categories, and customers.
+## Folder Structure
+Typical structure after setup:
+```
+├── src/
+│── server.ts             # Entry point
+├── dist/                 # Compiled JS output
+├── .eslintrc.js          # ESLint config
+├── tsconfig.json         # TypeScript config
+├── jest.config.js        # Jest config
+├── .husky/               # Git hooks
+├── package.json
+├── .env
+└── README.md
+```
+## environment variables
 
-### Requirements
+- PORT
+- MONGODB_URL
 
-- Use **NodeJS**, **Express**, **TypeScript**, and **MongoDB**
-- Implement **token-based authentication** (e.g., JWT)
-- Document all endpoints using **Postman**
-- Write **unit tests** for key functionalities
-- Include at least 4 endpoints related to the main models (Cars & Managers), demonstrating CRUD operations
-- Include a `GET /cars` endpoint with support for pagination and multiple **filters,** such as:
-    - brand
-    - model
-    - price range
-    - availability
-    - etc…
 
-### 🔍 What We're Looking For
+## Installation
+```sh
+npm install
+```
 
-- **Relational Thinking**
-    
-    Design interconnected models — e.g., cars belong to categories, customers can purchase cars, etc.
-    
-- **Query Design**
-    
-    Write efficient and readable queries that demonstrate filter usage and thoughtful data access patterns
-    
-- **Authentication & Security**
-    
-    Use JWT or similar for authentication, apply proper input validation and sanitization
-    
-- **Error Handling**
-    
-    Use appropriate HTTP status codes and return informative error messages
-    
-- **Code Quality**
-    
-    Clean, modular, well-documented, and maintainable code using TypeScript best practices
-    
-- **Testing**
-    
-    Unit tests covering critical paths
-    
+## Run Tests
+```sh
+npm test
+```
+Executes tests using Jest.
+
+## Git Hooks (Husky)
+```sh
+npm run prepare
+```
+Initializes Husky to add Git hooks (e.g., pre-commit for linting/tests).
+
+## Start the Project
+```sh
+npm start
+```
+Runs the app using ts-node (development mode, TypeScript directly).
+
+## Development Mode with Auto Reload
+```sh
+npm run dev
+```
+Starts the app with nodemon watching for file changes.

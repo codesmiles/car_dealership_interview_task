@@ -22,8 +22,6 @@ abstract class BaseAbstract<T, I> {
     abstract exists(query: object, session?: ClientSession): Promise<boolean>;
     abstract findSingle(data: { payload: Partial<I>; populate?: string[] }, session?: ClientSession): Promise<I | null>;
     abstract softDelete(id: string, session?: ClientSession): Promise<void>;
-    ;
-    abstract findOrCreate(payload: Partial<I>, key: keyof I, session?: ClientSession): Promise<I>;
     abstract deleteMany(payload: object): Promise<null>
 
 }
@@ -209,76 +207,6 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
             },
         };
     }
-    /**
-   * Find Or Create 
-   * @param {Partial<I>} payload an array of value you want to check
-   * @param {keyof I} key the key you want to find
-   * @param {ClientSession} session  - Transaction session(Optional).
-   * @returns {I} array of data of existing and created documents
-   */
-    async findOrCreate(payload: Partial<I>, key: keyof I, session?: ClientSession): Promise<I> {
-        if (!this.allowedOperations.includes(CrudOperationsEnum.FIND_OR_CREATE)) {
-            notAllowedMsg(CrudOperationsEnum.FIND_OR_CREATE);
-        }
-
-        console.log("Filtered Fields", this.serializer);
-        const value = payload[key];
-        const filter = { [key]: value, isDeleted: false } as FilterQuery<T>;
-        let query = this.Model.findOne(filter)
-            .select(this.serializer.map(field => `-${field}`));
-
-        if (session) {
-            query = query.session(session);
-        }
-
-        const doc = await query.exec() ?? await this.Model.create(payload as I, { session });
-        return doc as I;
-    }
-    /**
-     * Find Many Or Create Many (I WILL WORK N THIS LATEER)
-     * @param {string[]} identifiers an array of value you want to check
-     * @param {keyof I} key the key you want to find
-     * @param {ClientSession} session  - Transaction session(Optional).
-     * @returns array of data of existing and created documents
-     */
-    
-// async findManyOrCreateMany(
-//   identifiers: Partial<I>[],
-//   key: keyof I,
-//   session?: ClientSession
-// ): Promise<I[]> {
-//   if (!this.allowedOperations.includes(CrudOperationsEnum.FIND_MANY_OR_CREATE_MANY)) {
-//     notAllowedMsg(CrudOperationsEnum.FIND_MANY_OR_CREATE_MANY);
-//   }
-
-//   // Filter out items without a defined key value and assert type safety
-//     const validIdentifiers = identifiers.filter(
-//         (item): item is Partial<I> => item[key] !== undefined && item[key] !== null
-//     );
-//   const keyValues = validIdentifiers.map(item => item[key]);
-//   const filter = { [key]: { $in: keyValues } } as FilterQuery<I>;
-
-//   const existingDocs = await this.Model.find(
-//     { isDeleted: false, ...filter },
-//     session
-//   ).select(this.serializer.map(field => `-${field}`)).exec();
-
-//     const existingValues = new Set(existingDocs.map(doc => doc[key]));
-
-//   const toCreate = validIdentifiers.filter(item => !existingValues.has(item[key]));
-
-//   const createdDocs = toCreate.length
-//     ? await this.Model.insertMany(
-//         toCreate.map(item => ({ [key]: item[key] })),
-//         { ordered: false, session }
-//       )
-//     : [];
-
-//   return [...existingDocs, ...createdDocs] as I[];
-// }
-
-
-
 
     /**
      * Updates a document in the database.

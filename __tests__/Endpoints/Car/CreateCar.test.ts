@@ -40,8 +40,8 @@ describe(`POST ${endpoint}`, () => {
             await userService.create(payload),
             await userService.create(payload2)
         ]);
-        employeeId = employee._id as IUser["_id"] 
-        customerId = customer._id as IUser["_id"] 
+        employeeId = employee._id;
+        customerId = customer._id;
     }, 10000);
 
     beforeEach(async () => {

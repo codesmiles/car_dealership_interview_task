@@ -43,7 +43,7 @@ describe(`POST ${getRoute("1")}`, () => {
 
 
     it('should return an unauthorized user message if youre not authenticated', async () => {
-        const response = await request(app).get(getRoute("2j1")).send();
+        const response = await request(app).get(getRoute(":id")).send();
 
         expect(response.status).toBe(401);
         expect(response.body).toHaveProperty('message', ResponseBuilder.ERROR_MESSAGE);

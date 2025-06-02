@@ -41,7 +41,7 @@ export enum ResponseMessageEnum {
     UNAUTHORIZED = "Unauthorized",
     VALIDATION_ERROR_MESSAGE = "Validation Error",
     CAR_NOT_FOUND = "Car not found",
-    CAR_ALREADY_SOLD = "Car already sold",
+    CAR_ALREADY_SOLD = "Not enough car for you motherfucker",
     USER_NOT_FOUND = "User not found",
     CAR_QUANTITY_NOT_UPDATED = "Car quantity not updated",
     SALE_NOT_CREATED = "Sale not created",

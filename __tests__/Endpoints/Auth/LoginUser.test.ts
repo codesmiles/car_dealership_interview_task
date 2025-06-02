@@ -69,7 +69,7 @@ describe(`POST ${endpoint}`, () => {
   });
   it('should return incorrect login credentials message based on in correct password', async () => {
     const password = 'password123';
-    await User.create({ email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890' });
+    await userService.create({ email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890' });
 
     const response = await request(app).post(endpoint).send({
       email: 'test@example.com', password: 'password@12'
@@ -87,7 +87,7 @@ describe(`POST ${endpoint}`, () => {
 
   it('should return successfully logged in message', async () => {
     const password = await generateHash('password123');
-    await User.create({ email: 'test@example.com', password, name: 'Test User', phone: '1234567890' });
+    await userService.create({ email: 'test@example.com', password, name: 'Test User', phone: '1234567890' });
 
     const response = await request(app).post(endpoint).send({
       email: 'test@example.com', password: 'password123'

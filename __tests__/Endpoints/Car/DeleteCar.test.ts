@@ -32,8 +32,10 @@ const createCarPayload = {
     quantityAvailable: 23
 }
 
+
 const userService = new UserService();
 const carService = new CarService();
+
 describe(`PUT ${endpoint(":id")}`, () => {
     let carId: ICar["_id"],
         employeeId: IUser["_id"],
@@ -61,7 +63,7 @@ describe(`PUT ${endpoint(":id")}`, () => {
 
 
     it('should return an unauthorized user message if youre not authenticated', async () => {
-        const response = await request(app).put(endpoint(":carId")).send();
+        const response = await request(app).delete(endpoint(":carId")).send();
 
         expect(response.status).toBe(401);
         expect(response.body).toHaveProperty('message', ResponseBuilder.ERROR_MESSAGE);
@@ -71,22 +73,6 @@ describe(`PUT ${endpoint(":id")}`, () => {
 
     });
 
-    it('should return no payload provided error message', async () => {
-        const token = signJwt({
-            id: employeeId,
-            role: employeePayload.role,
-            email: employeePayload.email,
-        });
-
-        const response = await request(app).put(endpoint(carId)).set('Authorization', `Bearer ${token}`).send();
-
-        expect(response.status).toBe(400);
-        expect(response.body).toEqual({
-            message: ResponseMessageEnum.VALIDATION_ERROR_MESSAGE,
-            status: 400,
-            data: "No Payload was provided"
-        });
-    });
 
     it('should return forbidden endpoint for authenticated customer', async () => {
 
@@ -96,7 +82,7 @@ describe(`PUT ${endpoint(":id")}`, () => {
             email: customerPayload.email,
         });
 
-        const response = await request(app).put(endpoint(carId)).set('Authorization', `Bearer ${token}`).send({});
+        const response = await request(app).delete(endpoint(carId)).set('Authorization', `Bearer ${token}`);
 
         expect(response.status).toBe(403);
         expect(typeof response.body.data).toBe('string');
@@ -105,36 +91,15 @@ describe(`PUT ${endpoint(":id")}`, () => {
         expect(response.body).toHaveProperty('data', ResponseMessageEnum.FORBIDDEN);
     });
 
-
-    it('should return car not found message', async () => {
-
-        const token = signJwt({
-            id: employeeId,
-            role: employeePayload.role,
-            email: employeePayload.email,
-        });
-       
-
-        const response = await request(app).put(endpoint("683a4d7a4dc5d86982323bd8")).set('Authorization', `Bearer ${token}`).send({price: 2020});
-
-        expect(response.status).toBe(404);
-        expect(response.body).toHaveProperty('message', ResponseBuilder.ERROR_MESSAGE);
-        expect(response.body).toHaveProperty('status', 404);
-        expect(typeof response.body.data).toBe('string');
-        expect(response.body).toHaveProperty('data', ResponseMessageEnum.CAR_NOT_FOUND);
-    });
-
-    it('should return a success message', async () => {
+      it('should return a success message', async () => {
 
         const token = signJwt({
             id: employeeId,
             role: employeePayload.role,
             email: employeePayload.email,
         });
-        const responsePayload = {price: 2020}
-        
 
-        const response = await request(app).put(endpoint(carId)).set('Authorization', `Bearer ${token}`).send(responsePayload);
+        const response = await request(app).delete(endpoint(carId)).set('Authorization', `Bearer ${token}`);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', ResponseBuilder.SUCCESS_MESSAGE);
@@ -142,6 +107,5 @@ describe(`PUT ${endpoint(":id")}`, () => {
         expect(typeof response.body.data).toBe('object');
         expect(response.body).toHaveProperty('data');
     });
-
 
 })

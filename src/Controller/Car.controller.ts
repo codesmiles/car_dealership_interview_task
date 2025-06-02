@@ -165,13 +165,14 @@ export const purchase_car = async (req: CustomRequest, res: Response) => {
 
         // check if car exists and if it is available for purchase and if it is not already sold out
         const car = await carService.findSingle({ payload: { _id: req.body.car } }, session);
+
         if (!car || car === null) {
             await session.abortTransaction();
             errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 404, ResponseMessageEnum.CAR_NOT_FOUND);
             return res.status(404).json(errorResponse.toJson());
         }
         
-        if (!car.isActive || car.quantityAvailable <= 0) {
+        if (!car.isActive || car.quantityAvailable <= 0 || car.quantityAvailable - req.body.count <= 0) {
             await session.abortTransaction();
             errorResponse = new ResponseBuilder(ResponseBuilder.ERROR_MESSAGE, 400, ResponseMessageEnum.CAR_ALREADY_SOLD);
             return res.status(400).json(errorResponse.toJson());

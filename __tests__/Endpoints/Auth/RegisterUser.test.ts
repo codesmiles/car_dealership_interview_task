@@ -5,29 +5,31 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import {
     app,
-    User,
     ROUTES,
     ResponseBuilder,
     ResponseMessageEnum,
-    generateHash
+    generateHash,
+    UserService
 } from "../../../src";
+import { cleanup_database, prepare_database } from "../../helperFunction";
+
+const userService = new UserService();
 
 const endpoint = `${ROUTES.apiV1}${ROUTES.auth}${ROUTES.createUser}`;
 
 describe(`POST ${endpoint}`, () => {
     // database connection
     beforeAll(async () => {
-        const dbName = `car_dealership_test_${Date.now()}`;
-        await mongoose.connect(`${process.env.MONGODB_URL as string}/${dbName}`);
+      await prepare_database()
         console.log('Connected to MongoDB for testing');
     }, 10000);
 
     beforeEach(async () => {
-        await User.deleteMany({});
+        await userService.deleteMany({});
     }, 10000);
     
     afterAll(async () => {
-        await User.deleteMany({});
+        await cleanup_database()
         await mongoose.disconnect();
     }, 10000);
 
@@ -61,7 +63,7 @@ describe(`POST ${endpoint}`, () => {
             name: 'Test User',
  
         }
-        await User.create(payload);
+        await userService.create(payload);
 
         const response = await request(app).post(endpoint).send(payload);
 

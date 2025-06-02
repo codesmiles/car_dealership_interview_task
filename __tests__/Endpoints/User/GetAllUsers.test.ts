@@ -4,46 +4,39 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import {
     app,
-    SaleService,
     ROUTES,
     ResponseBuilder,
     ResponseMessageEnum,
     generateHash,
     UserRoles,
-    CarService,
-    User,
-    ISale,
-    Car,
-    Sale
+    UserService,
+    signJwt,
 } from "../../../src";
+import { cleanup_database, prepare_database } from "../../helperFunction";
 
-const getRoute = (userId: string): string => {
-    return `${ROUTES.apiV1}${ROUTES.user}/${userId}/${ROUTES.view_user_purchases}`;
-}
 
-const login_endpoint = `${ROUTES.apiV1}${ROUTES.auth}${ROUTES.loginUser}`;
-const carService = new CarService();
-const saleService = new SaleService();
+const endpoint = `${ROUTES.apiV1}${ROUTES.user}/`;
+const userService = new UserService();
 
-describe(`POST ${getRoute("1")}`, () => {
+describe(`POST ${endpoint}`, () => {
     // database connection
     beforeAll(async () => {
-        const dbName = `car_dealership_test_${Date.now()}`;
-        await mongoose.connect(`${process.env.MONGODB_URL as string}/${dbName}`);
+   await prepare_database()
         console.log('Connected to MongoDB for testing');
     }, 10000);
 
     beforeEach(async () => {
-        await Promise.all([User.deleteMany({}), Car.deleteMany({}),Sale.deleteMany({})]);
+        await Promise.all([userService.deleteMany({})]);
     }, 10000);
-
+    
     afterAll(async () => {
+        await cleanup_database()
         await mongoose.disconnect();
     }, 10000);
 
 
     it('should return an unauthorized user message if youre not authenticated', async () => {
-        const response = await request(app).get(getRoute("2j1")).send();
+        const response = await request(app).get(endpoint).send();
 
         expect(response.status).toBe(401);
         expect(response.body).toHaveProperty('message', ResponseBuilder.ERROR_MESSAGE);
@@ -54,42 +47,18 @@ describe(`POST ${getRoute("1")}`, () => {
     });
 
     it('should return a successful response message', async () => {
-        // create car   
-        const createCarPayload = {
-            vin: 123454,
-            brand: "toyota",
-            price: 2343,
-            category: "SUV",
-            carModel: "vibes",
-            quantityAvailable: 23
-        }
-
-        //    create 2 users
+           
         const password = 'password123';
-        const hashedPassword = await generateHash(password);
+        const payload = { email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890', role: UserRoles.EMPLOYEE }
+        const user = await userService.create(payload);
 
-        const payload = { email: 'employee@example.com', password: hashedPassword, name: 'Test User', phone: '1234567890', role: UserRoles.EMPLOYEE };
-        const payload2 = { email: 'customer@example.com', password: hashedPassword, name: 'Test User', phone: '1234567890', role: UserRoles.CUSTOMER };
-
-        const [employee, customer] = await User.insertMany([payload, payload2]);
-        const car = await carService.create(createCarPayload)
-      
-
-        // buy car
-        const sales_payload = {
-            car: car._id,
-            buyer: customer._id,
-            count: 3,
-            seller: employee._id,
-        }
-
-        await saleService.create(sales_payload as Partial<ISale>);
-const login = await request(app).post(login_endpoint).send({ email: payload2.email, password });
-        const token = login.body.data.token;
-
-        // check endpoint
-        const response = await request(app).get(getRoute(customer._id as string)).set('Authorization', `Bearer ${token}`);
-
+   const token = signJwt({
+      id: user._id,
+      role: payload.role,
+      email: payload.email,
+    });
+        const response = await request(app).get(endpoint).set('Authorization', `Bearer ${token}`).send();
+        
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', ResponseBuilder.SUCCESS_MESSAGE);
         expect(response.body).toHaveProperty('status', 200);

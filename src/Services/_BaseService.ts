@@ -24,6 +24,7 @@ abstract class BaseAbstract<T, I> {
     abstract softDelete(id: string, session?: ClientSession): Promise<void>;
     ;
     abstract findOrCreate(payload: Partial<I>, key: keyof I, session?: ClientSession): Promise<I>;
+    abstract deleteMany(payload: object): Promise<null>
 
 }
 
@@ -187,8 +188,8 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
             )
             .skip(skip)
             .limit(pageSize)
-        
-        const {session, populate } = options || {};
+
+        const { session, populate } = options || {};
         // Apply session if provided
         if (session) {
             data.forEach(doc => doc.$session(session));
@@ -225,9 +226,9 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
         const filter = { [key]: value, isDeleted: false } as FilterQuery<T>;
         let query = this.Model.findOne(filter)
             .select(this.serializer.map(field => `-${field}`));
-        
+
         if (session) {
-        query = query.session(session);
+            query = query.session(session);
         }
 
         const doc = await query.exec() ?? await this.Model.create(payload as I, { session });
@@ -240,23 +241,42 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
      * @param {ClientSession} session  - Transaction session(Optional).
      * @returns array of data of existing and created documents
      */
-    async findManyOrCreateMany(identifiers: string[], key: keyof I, session?: ClientSession): Promise<I[]> {
-        if (!this.allowedOperations.includes(CrudOperationsEnum.FIND_MANY_OR_CREATE_MANY)) {
-            notAllowedMsg(CrudOperationsEnum.FIND_MANY_OR_CREATE_MANY);
-        }
-        console.log("Filtered Fields", this.serializer);
-        const filter = { [key]: { $in: identifiers } } as FilterQuery<I>;
-        const existingDocs = await this.Model.find({ isDeleted: false, ...filter }, session).select(this.serializer.map(field => `-${field}`)).exec();
+// async findManyOrCreateMany(
+//   identifiers: Partial<I>[],
+//   key: keyof I,
+//   session?: ClientSession
+// ): Promise<I[]> {
+//   if (!this.allowedOperations.includes(CrudOperationsEnum.FIND_MANY_OR_CREATE_MANY)) {
+//     notAllowedMsg(CrudOperationsEnum.FIND_MANY_OR_CREATE_MANY);
+//   }
 
-        const existingValues = existingDocs.map(doc => doc[key] as string);
-        const toCreate = identifiers.filter(val => !existingValues.includes(val));
+//   // Filter out items without a defined key value and assert type safety
+//     const validIdentifiers = identifiers.filter(
+//         (item): item is Partial<I> => item[key] !== undefined && item[key] !== null
+//     );
+//   const keyValues = validIdentifiers.map(item => item[key]);
+//   const filter = { [key]: { $in: keyValues } } as FilterQuery<I>;
 
-        const createdDocs = await this.Model.insertMany(
-            toCreate.map(val => ({ [key]: val })), { ordered: false, session });
+//   const existingDocs = await this.Model.find(
+//     { isDeleted: false, ...filter },
+//     session
+//   ).select(this.serializer.map(field => `-${field}`)).exec();
 
-        // Step 4: Return all
-        return [...existingDocs, ...createdDocs] as I[];
-    }
+//     const existingValues = new Set(existingDocs.map(doc => doc[key]));
+
+//   const toCreate = validIdentifiers.filter(item => !existingValues.has(item[key]));
+
+//   const createdDocs = toCreate.length
+//     ? await this.Model.insertMany(
+//         toCreate.map(item => ({ [key]: item[key] })),
+//         { ordered: false, session }
+//       )
+//     : [];
+
+//   return [...existingDocs, ...createdDocs] as I[];
+// }
+
+
 
 
     /**
@@ -357,4 +377,11 @@ export default class BaseService<T, I> extends BaseAbstract<T, I> {
         return count;
     }
 
+    async deleteMany(payload: object): Promise<null> {
+        if (!this.allowedOperations.includes(CrudOperationsEnum.DELETE_MANY)) {
+            notAllowedMsg(CrudOperationsEnum.DELETE_MANY);
+        }
+        await this.Model.deleteMany(payload);
+        return null
+    }
 }

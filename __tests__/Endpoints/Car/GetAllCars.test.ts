@@ -4,35 +4,36 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import {
     app,
-    User,
+    // User,
     ROUTES,
     ResponseBuilder,
     ResponseMessageEnum,
     generateHash,
     UserRoles,
     CarService,
-    Car,
+    UserService,
+    signJwt,
 } from "../../../src";
+import { cleanup_database, prepare_database } from "../../helperFunction";
 
 
 const endpoint = `${ROUTES.apiV1}${ROUTES.car}/`;
-const login_endpoint = `${ROUTES.apiV1}${ROUTES.auth}${ROUTES.loginUser}`;
 const carService = new CarService();
+const userService = new UserService();
 
 describe(`POST ${endpoint}`, () => {
     // database connection
     beforeAll(async () => {
-        const dbName = `car_dealership_test_${Date.now()}`;
-        await mongoose.connect(`${process.env.MONGODB_URL as string}/${dbName}`);
+   await prepare_database()
         console.log('Connected to MongoDB for testing');
     }, 10000);
 
     beforeEach(async () => {
-        await Promise.all([User.deleteMany({}), Car.deleteMany({})]);
+        await Promise.all([userService.deleteMany({}), carService.deleteMany({})]);
     }, 10000);
     
     afterAll(async () => {
-       await Promise.all([User.deleteMany({}), Car.deleteMany({})]);
+        await cleanup_database()
         await mongoose.disconnect();
     }, 10000);
 
@@ -61,13 +62,13 @@ describe(`POST ${endpoint}`, () => {
         
         const password = 'password123';
         const payload = { email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890', role: UserRoles.EMPLOYEE }
-        await User.create(payload);
+        const user = await userService.create(payload);
 
-        const login = await request(app).post(login_endpoint).send({
-            email: payload.email, password
-        })
-        const token = login.body.data.token;
-
+   const token = signJwt({
+      id: user._id,
+      role: payload.role,
+      email: payload.email,
+    });
         const response = await request(app).get(endpoint).set('Authorization', `Bearer ${token}`).send();
         
         expect(response.status).toBe(200);

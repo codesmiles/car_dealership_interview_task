@@ -30,6 +30,7 @@ export enum CrudOperationsEnum {
   SOFT_DELETE = "softDelete",
   FIND_SINGLE = "findSingle",
   FIND_OR_CREATE = "findOrCreate",
+  DELETE_MANY = "deleteMany",
   FIND_MANY_OR_CREATE_MANY = "findManyOrCreateMany"
 }
 

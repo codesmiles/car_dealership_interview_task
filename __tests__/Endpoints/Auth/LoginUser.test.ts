@@ -4,31 +4,32 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import {
   app,
-  User,
   ROUTES,
   ResponseBuilder,
   ResponseMessageEnum,
-  generateHash
+  generateHash,
+  UserService
 } from "../../../src";
 
+import {cleanup_database, prepare_database} from "../../helperFunction"
+
 const endpoint = `${ROUTES.apiV1}${ROUTES.auth}${ROUTES.loginUser}`;
+const userService = new UserService();
 
 describe(`POST ${endpoint}`, () => {
   // database connection
   beforeAll(async () => {
-        const dbName = `car_dealership_test_${Date.now()}`;
-        await mongoose.connect(`${process.env.MONGODB_URL as string}/${dbName}`);
-    console.log('Connected to MongoDB for testing');
-  },10000);
+   await prepare_database()
+  }, 10000);
 
   beforeEach(async () => {
-    await User.deleteMany({});
-  },10000);
-  
+    await userService.deleteMany({});
+  }, 10000);
+
   afterAll(async () => {
-    await User.deleteMany({});
+    await cleanup_database()
     await mongoose.disconnect();
-  },10000);
+  }, 10000);
 
   it('should return no payload provided error message', async () => {
     const response = await request(app).post(endpoint);
@@ -67,9 +68,9 @@ describe(`POST ${endpoint}`, () => {
 
   });
   it('should return incorrect login credentials message based on in correct password', async () => {
-      const password = 'password123';
-    await User.create({ email: 'test@example.com', password: await generateHash(password), name: 'Test User',phone: '1234567890' });
-    
+    const password = 'password123';
+    await User.create({ email: 'test@example.com', password: await generateHash(password), name: 'Test User', phone: '1234567890' });
+
     const response = await request(app).post(endpoint).send({
       email: 'test@example.com', password: 'password@12'
     });
@@ -85,9 +86,9 @@ describe(`POST ${endpoint}`, () => {
   });
 
   it('should return successfully logged in message', async () => {
-      const password = await generateHash('password123');
-    await User.create({ email: 'test@example.com', password, name: 'Test User',phone: '1234567890' });
-    
+    const password = await generateHash('password123');
+    await User.create({ email: 'test@example.com', password, name: 'Test User', phone: '1234567890' });
+
     const response = await request(app).post(endpoint).send({
       email: 'test@example.com', password: 'password123'
     });

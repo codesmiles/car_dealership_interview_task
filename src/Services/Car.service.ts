@@ -12,7 +12,9 @@ export class CarService extends BaseService<Partial<ICar>, ICar> {
         CrudOperationsEnum.UPDATE,
         CrudOperationsEnum.FIND_SINGLE,
         CrudOperationsEnum.SOFT_DELETE,
-        CrudOperationsEnum.FIND_OR_CREATE
+      CrudOperationsEnum.FIND_OR_CREATE,
+      CrudOperationsEnum.DELETE_MANY,
+        
       ],
       serializer: [
         "createdAt",

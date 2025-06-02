@@ -44,11 +44,3 @@ Build a simple RESTful API for a **car dealership** to manage cars, categories, 
     
     Unit tests covering critical paths
     
-
-### 📤 Submission Instructions
-
-When you're done, send an email to dev@vobb.io with:
-
-1. 🔗 **GitHub repository** (include setup instructions in the README)
-2. 🔗 **Live API link** (hosted on Render, Railway, or similar)
-3. 🔗 **Postman documentation link**

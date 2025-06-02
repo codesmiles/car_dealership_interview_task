@@ -4,15 +4,14 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import {
     app,
-    // User,
     ROUTES,
-    ResponseBuilder,
-    ResponseMessageEnum,
-    generateHash,
+    signJwt,
     UserRoles,
     CarService,
     UserService,
-    signJwt,
+    generateHash,
+    ResponseBuilder,
+    ResponseMessageEnum,
 } from "../../../src";
 import { cleanup_database, prepare_database } from "../../helperFunction";
 

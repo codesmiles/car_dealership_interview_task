@@ -17,7 +17,6 @@ export const prepare_database = async () => {
 export const cleanup_database = async () => {
   if (mongoose.connection.readyState !== 0) {
      const currentDb = mongoose.connection.db as mongoose.mongo.Db;
-     
     
     await currentDb.dropDatabase();
     await mongoose.disconnect();
